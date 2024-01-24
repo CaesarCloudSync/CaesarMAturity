@@ -42,6 +42,9 @@ class SQLOps:
         qr_res = self.Maturitycrud.post_data(("subcategory","questionrating"),(subcategory,questionrating),"questionratings")
 
         q_res = self.Maturitycrud.post_data(("questionrating","question","evidenceforservice"),(questionrating,question,evidence),"questions")
+        has_access = self.check_access(email,maturityassessment)
+        if not has_access:
+            acc_res = self.Maturitycrud.post_data(("email","maturityassessment"),(email,maturityassessment),"maturityassessmentaccess")
         if mat_res and func_res and cat_res and subcat_res and qr_res and q_res:
             return True
         else:
