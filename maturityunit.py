@@ -1,14 +1,10 @@
 import requests
 import unittest
-import base64
+
 from dotenv import load_dotenv
 load_dotenv(".env")
-from MaturitySQLDB.Maturitycrud import MaturityCRUD
-from MaturitySQLDB.Maturityhash import MaturityHash
-from SQLOps.sqlops import SQLOps
-from MaturitySQLDB.Maturity_create_tables import MaturityCreateTables
-Maturitycrud = MaturityCRUD()
-Maturitycreatetables = MaturityCreateTables()
+
+
 uri = "http://127.0.0.1:8080"
 email = "maturity.unittest@gmail.com" #input("What is your email?")
 password = "maturity" # input("What is your password?")
