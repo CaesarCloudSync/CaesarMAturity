@@ -1,6 +1,6 @@
 git add .
-git commit -m "CaesarMaturity mostly works, slight error in deletion, need to improve testing slightly"
-git push origin -f master:main
+git commit -m "$1"
+git push origin -u main:main
 docker build -t palondomus/maturitybackend:latest .
 docker push palondomus/maturitybackend:latest
 docker run -it -p 8080:8080 palondomus/maturitybackend:latest

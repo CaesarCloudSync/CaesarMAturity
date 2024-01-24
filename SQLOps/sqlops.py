@@ -24,7 +24,6 @@ class SQLOps:
         subcat_exists = self.Maturitycrud.check_exists(("*"),"subcategorys",f"subcategory = '{subcategory}'")    
         qr_exists = self.Maturitycrud.check_exists(("*"),"questionratings",f"questionrating = '{questionrating}'")
         q_exists = self.Maturitycrud.check_exists(("*"),"questions",f"question = '{question}'")
-
         if mat_exists and func_exists and cat_exists and subcat_exists and qr_exists and q_exists:
             return True
         else:
@@ -35,16 +34,15 @@ class SQLOps:
             return True
         else:
             return False
-    def store_question(self,email,maturityassessment,function,category,grade,subcategory,questionrating,questions,evidence):
+    def store_question(self,email,maturityassessment,function,category,grade,subcategory,questionrating,question,evidence):
         mat_res = self.Maturitycrud.post_data(("author_email","maturityassessment"),(email,maturityassessment),"maturityassessments")
         func_res = self.Maturitycrud.post_data(("maturityassessment","function"),(maturityassessment,function),"functions")
         cat_res = self.Maturitycrud.post_data(("function","category"),(function,category),"categorys")
         subcat_res = self.Maturitycrud.post_data(("category","subcategory","grade"),(category,subcategory,grade),"subcategorys")
         qr_res = self.Maturitycrud.post_data(("subcategory","questionrating"),(subcategory,questionrating),"questionratings")
-        for ind,question in enumerate(questions):
-            q_res = self.Maturitycrud.post_data(("questionrating","question","evidenceforservice"),(questionrating,question,evidence[ind]),"questions")
-        acc_res = self.Maturitycrud.post_data(("email","maturityassessment"),(email,maturityassessment),"maturityassessmentaccess")
-        if mat_res and func_res and cat_res and subcat_res and qr_res and q_res and acc_res:
+
+        q_res = self.Maturitycrud.post_data(("questionrating","question","evidenceforservice"),(questionrating,question,evidence),"questions")
+        if mat_res and func_res and cat_res and subcat_res and qr_res and q_res:
             return True
         else:
             return False

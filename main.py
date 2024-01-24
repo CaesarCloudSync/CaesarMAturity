@@ -84,12 +84,12 @@ async def login(login_details: JSONStructure = None): # ,authorization: str = He
                 return {"message": "The username or password is incorrect."}
             else:
                 return {"access_token": access_token}
-
-        return {"message": "The username or password is incorrect."}
+        else:
+            return {"message": "The username or password is incorrect."}
     except Exception as ex:
         return {"error": f"{type(ex)} {str(ex)}"}
 
-@app.post('/storequestions') # POST # allow all origins all methods.
+@app.post('/storequestion') # POST # allow all origins all methods.
 async def storequestion(data : JSONStructure = None, authorization: str = Header(None)):
     try:
         current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
@@ -97,11 +97,13 @@ async def storequestion(data : JSONStructure = None, authorization: str = Header
             data = dict(data)#request.get_json() # te
             maturityassessment,function,category,subcategory,questionrating,question,evidence,grade = sqlops.validate_store_request(data)
             email = current_user
-            res = sqlops.store_question(email ,maturityassessment,function,category,grade ,subcategory,questionrating,question,evidence)
-            if res:
-                return {"message":"question was stored"}
+            question_exists = sqlops.check_question_exists(maturityassessment,function,category,subcategory,questionrating,question)
+            if question_exists:
+                return {"error":"question already exist"}                
             else:
-                return {"error","questings already exist"}
+                res = sqlops.store_question(email ,maturityassessment,function,category,grade ,subcategory,questionrating,question,evidence)
+                return {"message":"question was stored"}
+                
             
             
     except Exception as ex:
@@ -120,8 +122,11 @@ async def getquestions(request: Request,authorization: str = Header(None)):
                 res = maturitycrud.get_join_question_data(("maturityassessments.maturityassessment","functions.function","categorys.category","subcategorys.subcategory",
                                                      "questionratings.questionrating","questions.question","questions.evidenceforservice","maturityassessments.author_email",
                                                      "subcategorys.grade"),params)
-                res_list = list({frozenset(item.items()) : item for item in res}.values())
-                return {"maturityassessments":res_list}
+                if res:
+                    res_list = list({frozenset(item.items()) : item for item in res}.values())
+                    return {"maturityassessments":res_list}
+                else:
+                    return {"error":"maturity assessment data does not exist."}
 
 
             else:
@@ -129,6 +134,7 @@ async def getquestions(request: Request,authorization: str = Header(None)):
     except Exception as ex:
         print(type(ex),ex)
         return {"error":f"{type(ex)},{ex}"}
+
 @app.put('/updatequestion') # POST # allow all origins all methods.
 async def updatequestion(data : JSONStructure = None,authorization: str = Header(None)):
     try:
@@ -167,6 +173,30 @@ async def deletematurityinfo(request : Request,authorization: str = Header(None)
     except Exception as ex:
         print(type(ex),ex)
         return {"error":f"{type(ex)},{ex}"}
+@app.post('/grantaccessinitial') # POST # allow all origins all methods.
+async def grantaccessforinitial(data : JSONStructure = None):
+    try:
+
+        data = dict(data)
+        email = data["email"]
+        maturityassessment = data["maturityassessment"]
+        email_exists = maturitycrud.check_exists(("*"),"users",f"email = '{email}'")
+        if email_exists:
+            has_access = sqlops.check_access(email,data["maturityassessment"])
+            if not has_access:
+                res = maturitycrud.post_data(("email","maturityassessment"),(email,maturityassessment),"maturityassessmentaccess")
+                if res:
+                    return {"message":f"access has been granted to {email} for this maturity assesement."}
+                else:
+                    return {"error":"error granting acccess."}
+            else:
+                return {"error":"already has access."}
+        else:
+            return {"error":"user doesn't exist."}
+
+    except Exception as ex:
+        print(type(ex),ex)
+        return {"error":f"{type(ex)},{ex}"}
 @app.post('/grantaccess') # POST # allow all origins all methods.
 async def grantaccess(data : JSONStructure = None, authorization: str = Header(None)):
     try:
@@ -179,13 +209,17 @@ async def grantaccess(data : JSONStructure = None, authorization: str = Header(N
             if has_access:
                 email_exists = maturitycrud.check_exists(("*"),"users",f"email = '{email}'")
                 if email_exists:
-                    res = maturitycrud.post_data(("email","maturityassessment"),(email,maturityassessment),"maturityassessmentaccess")
-                    if res:
-                        return {"message":f"access has been granted to {email} for this maturity assesement."}
+                    has_access = sqlops.check_access(email,data["maturityassessment"])
+                    if not has_access:
+                        res = maturitycrud.post_data(("email","maturityassessment"),(email,maturityassessment),"maturityassessmentaccess")
+                        if res:
+                            return {"message":f"access has been granted to {email} for this maturity assesement."}
+                        else:
+                            return {"error":"error granting acccess."}
                     else:
-                        return {"error":"error granting acccess."}
+                        return {"error":"already has access."}
                 else:
-                    return {"message":"user doesn't exist."}
+                    return {"error":"user doesn't exist."}
             else:
                 return {"error":"You are unauthorized to grant access."}  
 
@@ -202,11 +236,15 @@ async def removeaccess(request : Request, authorization: str = Header(None)):
             maturityassessment = params["maturityassessment"]
             has_access = sqlops.check_access(current_user,maturityassessment)
             if has_access:
-                res = maturitycrud.delete_data("maturityassessmentaccess",f"email = '{email}' AND maturityassessment = '{maturityassessment}'")
-                if res:
-                    return {"message":f"access has been remove from {email} for this maturity assesement."}
+                has_access = sqlops.check_access(email,params["maturityassessment"])
+                if has_access:
+                    res = maturitycrud.delete_data("maturityassessmentaccess",f"email = '{email}' AND maturityassessment = '{maturityassessment}'")
+                    if res:
+                        return {"message":f"access has been remove from {email} for this maturity assesement."}
+                    else:
+                        return {"error":"error granting acccess."}
                 else:
-                    return {"error":"error granting acccess."}
+                    return {"error":"never had access."}
             else:
                 return {"error":"You are unauthorized to remove access."}  
 

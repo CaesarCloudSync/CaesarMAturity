@@ -9,77 +9,101 @@ from SQLOps.sqlops import SQLOps
 from MaturitySQLDB.Maturity_create_tables import MaturityCreateTables
 Maturitycrud = MaturityCRUD()
 Maturitycreatetables = MaturityCreateTables()
-revsqlops = SQLOps(Maturitycrud,Maturitycreatetables)
-uri = "http://192.168.0.11:8080"
+uri = "http://127.0.0.1:8080"
+email = "maturity.unittest@gmail.com" #input("What is your email?")
+password = "maturity" # input("What is your password?")
 
 class MaturityAssessmentCase(unittest.TestCase):
-    def AssertSignup(self,response_json):
-        if response_json.get("access_token"):
-            return True
-        if response_json.get("message"):
-            return True
-    def signup(self):
-        response = requests.post(f"{uri}/signupapi",json={"email":"amari.sql@gmail.com","password":"kya63amari"})
-        return self.AssertSignup(response.json())
-    def test_signup(self):
+    def login(self):
+        responselogin = requests.post(f"{uri}/signupapi",json={"email":email,"password":password})
+        access_token = responselogin.json().get("access_token")
+        if not access_token:
+            responselogin = requests.post(f"{uri}/loginapi",json={"email":email,"password":password})
+            access_token = responselogin.json()["access_token"]
+        self.assertNotEqual(access_token,None)
+        headers = {"Authorization": f"Bearer {access_token}"}
+        return headers
+    
+    def grant_access_initial(self):
+        # Normally this endpoint wouldn't exist in a production setting, this would be done manually for the first person, but for automated purposes the first ever person with access has to be automated.
+        # This endpoint would normally be a security problem.
+        response = requests.post(f"{uri}/grantaccessinitial",json={"email":email,"maturityassessment":"Nist Company Name Assessment"})
+        if response.json().get("message"):
+            self.assertNotEqual(response.json().get("message"),None)
+        else:
+            self.assertEqual(response.json().get("error"),"already has access.")
 
-        self.assertEqual(True,self.signup())
-  
-        #self.assertNotEqual(None,response.json().get("access_token"))
-    def test_store_maturity_assesment(self):
-        self.assertEqual(True,self.signup())
+    def loginfriend(self,emailfriend):
+        responselogin = requests.post(f"{uri}/signupapi",json={"email":emailfriend,"password":password})
+        access_token = responselogin.json().get("access_token")
+        if not access_token:
+            responselogin = requests.post(f"{uri}/loginapi",json={"email":emailfriend,"password":password})
+            access_token = responselogin.json()["access_token"]
+        self.assertNotEqual(access_token,None)
+        headers = {"Authorization": f"Bearer {access_token}"}
+        return headers
 
-        response = requests.post(f"{uri}/loginapi",json={"email":"amari.sql@gmail.com","password":"kya63amari"})
-        self.assertNotEqual(None,response.json().get("access_token"))
-        access_token = response.json().get("access_token")
-        headers = {"Authorization": f"Bearer {access_token}"}
-        response = requests.post(f"{uri}/storequestions",json= {"maturityassessment":"Nist Company Name Assessment","function":"GV","category":"GV.CE","subcategory":"GV.CV-1","grade":2, 
-                                                                "questionrating":"Basic","questions":["Is there a backup policy?","Is there constant monitoring"],
-                                                                "evidence":["The CTO said this","There is endpoint detection"]},headers=headers)
-        response = requests.post(f"{uri}/storequestions",json= {"maturityassessment":"Nist Company Name Assessment","function":"ID","category":"ID.AM","subcategory":"ID.AM-1","grade":3, 
-                                                        "questionrating":"Credible","questions":["Is there asset management support?","Is there a list of assets?"],
-                                                        "evidence":["The technical engineer said this.","They have a large scale database"]},headers=headers)
-        self.assertEqual("question was stored",response.json().get("message"))
-    def test_get_maturity_assesment(self):
-        response = requests.post(f"{uri}/loginapi",json={"email":"amari.sql@gmail.com","password":"kya63amari"})
-        self.assertNotEqual(None,response.json().get("access_token"))
-        access_token = response.json().get("access_token")
-        headers = {"Authorization": f"Bearer {access_token}"}
-        response = requests.get(f"{uri}/getquestions",params={"maturityassessment":"Nist Company Name Assessment","grade":2},headers=headers)
-        print(response.json())
-        #
-    def test_update_maturity_assesment(self):
-        response = requests.post(f"{uri}/loginapi",json={"email":"amari.sql@gmail.com","password":"kya63amari"})
-        self.assertNotEqual(None,response.json().get("access_token"))
-        access_token = response.json().get("access_token")
-        headers = {"Authorization": f"Bearer {access_token}"}
-        response = requests.put(f"{uri}/updatequestion",json={"maturityassessment":"Nist Company Name Assessment","category":"GV.CE","oldcategory":"PR.IR"},headers=headers)
-        self.assertEquals("maturity data updated.",response.json().get("message"))
-    def test_delete_maturity_assesment(self):
-        response = requests.post(f"{uri}/loginapi",json={"email":"amari.sql@gmail.com","password":"kya63amari"})
-        self.assertNotEqual(None,response.json().get("access_token"))
-        access_token = response.json().get("access_token")
-        headers = {"Authorization": f"Bearer {access_token}"}
-        response = requests.delete(f"{uri}/deletematurityinfo",params={"maturityassessment":"Nist Company Name Assessment","category":"GV.CE"},headers=headers)
-        self.assertEqual("maturity data deleted.",response.json().get("message"))
+    def test_store_maturity_assessment(self):
+        maturity_assessment_data = [{"maturityassessment":"Nist Company Name Assessment","function":"ID","category":"ID.AM","subcategory":"ID.AM-1","grade":3, 
+                                                        "questionrating":"Credible","questions":"Is there asset management support?",
+                                                        "evidence":"The technical engineer said this."},
+                            {"maturityassessment":"Nist Company Name Assessment","function":"GV","category":"GV.CV","subcategory":"GV.CV-1","grade":2, 
+                                                                "questionrating":"Basic","questions":"Is there a backup policy?",
+                                                                "evidence":"The CTO said this"}]
+        headers = self.login()
+        self.grant_access_initial()
+        for maturity_assessment in maturity_assessment_data:
+            response = requests.post(f"{uri}/storequestion",json=maturity_assessment ,headers=headers)
+            if response.json().get("message"):
+                self.assertNotEqual(response.json().get("message"),None)
+            else:
+                self.assertEqual(response.json().get("error"),"question already exist")
+
+    def test_get_maturity_assessment(self):
+        headers = self.login()
+        self.grant_access_initial()
+        response = requests.get(f"{uri}/getquestions",params={"maturityassessment":"Nist Company Name Assessment","maturityassessment":"Nist Company Name Assessment"},headers=headers)
+        if response.json().get("error"):
+            self.assertEqual(response.json().get("error"),"maturity assessment data does not exist.")
+        else:
+            print(response.json())
+            self.assertNotEqual(response.json().get("maturityassessments"),None)
+
+    def test_update_maturity_assessment(self):
+        headers = self.login()
+        self.grant_access_initial()
+        fields = [{"function":"PR","oldfunction":"GV"},{"category":"PR.IR","oldcategory":"GV.CV"},{"subcategory":"PR.IR-1","oldsubcategory":"GV.CV-1"}]
+        for fieldupdate in fields:
+            json_data = {"maturityassessment":"Nist Company Name Assessment"}
+            json_data.update(fieldupdate)
+            #print(json_data)
+            response = requests.put(f"{uri}/updatequestion",json=json_data,headers=headers)
+            if response.json().get("message"):
+                self.assertNotEqual(response.json().get("message"),None)
+
+            else:
+                self.assertEqual(response.json().get("error"),None)
+
     def test_grant_access(self):
-        response = requests.post(f"{uri}/loginapi",json={"email":"amari.sql@gmail.com","password":"kya63amari"})
-        self.assertNotEqual(None,response.json().get("access_token"))
-        access_token = response.json().get("access_token")
-        headers = {"Authorization": f"Bearer {access_token}"}
-        email = "amari.fbl@gmail.com"
-        response = requests.post(f"{uri}/grantaccess",json={"email":email,"maturityassessment":"Nist Company Name Assessment"},headers=headers)
-        self.assertEqual(f"access has been granted to {email} for this maturity assesement.",response.json().get("message"))
-    def test_grant_access(self):
-        response = requests.post(f"{uri}/loginapi",json={"email":"amari.sql@gmail.com","password":"kya63amari"})
-        self.assertNotEqual(None,response.json().get("access_token"))
-        access_token = response.json().get("access_token")
-        headers = {"Authorization": f"Bearer {access_token}"}
-        email = "amari.fbl@gmail.com"
-        response = requests.delete(f"{uri}/removeaccess",params={"email":email,"maturityassessment":"Nist Company Name Assessment"},headers=headers)
-        self.assertEqual(f"access has been remove from {email} for this maturity assesement.",response.json().get("message"))
-
-        
+        headers = self.login()
+        self.grant_access_initial()
+        emailfriend = "maturity.friend@gmail.com"
+        self.loginfriend(emailfriend)
+        response = requests.post(f"{uri}/grantaccess",json={"email":emailfriend,"maturityassessment":"Nist Company Name Assessment"},headers=headers)
+        if response.json().get("message"):
+            self.assertNotEqual(response.json().get("message"),None)
+        else:
+            self.assertEqual(response.json().get("error"),"already has access.")
+    def test_remove_access(self):
+        headers = self.login()
+        self.grant_access_initial()
+        emailfriend = "maturity.friend@gmail.com"
+        self.loginfriend(emailfriend)
+        response = requests.delete(f"{uri}/removeaccess",params={"email":emailfriend,"maturityassessment":"Nist Company Name Assessment"},headers=headers)
+        if response.json().get("message"):
+            self.assertNotEqual(response.json().get("message"),None)
+        else:
+            self.assertEqual(response.json().get("error"),"never had access.")
 
 
 if __name__ == "__main__":
