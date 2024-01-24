@@ -1,14 +1,13 @@
 import requests
 import unittest
-
-from dotenv import load_dotenv
-load_dotenv(".env")
+import json
 
 
 uri = "http://127.0.0.1:8080"
 email = "maturity.unittest@gmail.com" #input("What is your email?")
 password = "maturity" # input("What is your password?")
-
+with open ("UnittestData/store_maturity_assessment.json") as f:
+    store_mata_data  = json.load(f)
 class MaturityAssessmentCase(unittest.TestCase):
     def login(self):
         responselogin = requests.post(f"{uri}/signupapi",json={"email":email,"password":password})
@@ -23,11 +22,13 @@ class MaturityAssessmentCase(unittest.TestCase):
     def grant_access_initial(self):
         # Normally this endpoint wouldn't exist in a production setting, this would be done manually for the first person, but for automated purposes the first ever person with access has to be automated.
         # This endpoint would normally be a security problem.
-        response = requests.post(f"{uri}/grantaccessinitial",json={"email":email,"maturityassessment":"Nist Company Name Assessment"})
-        if response.json().get("message"):
-            self.assertNotEqual(response.json().get("message"),None)
-        else:
-            self.assertEqual(response.json().get("error"),"already has access.")
+        maturity_assess_names= set(map(lambda x: x["maturityassessment"],store_mata_data["store_maturity_data"]))
+        for maturity in maturity_assess_names:
+            response = requests.post(f"{uri}/grantaccessinitial",json={"email":email,"maturityassessment":maturity})
+            if response.json().get("message"):
+                self.assertNotEqual(response.json().get("message"),None)
+            else:
+                self.assertEqual(response.json().get("error"),"already has access.")
 
     def loginfriend(self,emailfriend):
         responselogin = requests.post(f"{uri}/signupapi",json={"email":emailfriend,"password":password})
@@ -40,12 +41,7 @@ class MaturityAssessmentCase(unittest.TestCase):
         return headers
 
     def test_store_maturity_assessment(self):
-        maturity_assessment_data = [{"maturityassessment":"Nist Company Name Assessment","function":"ID","category":"ID.AM","subcategory":"ID.AM-1","grade":3, 
-                                                        "questionrating":"Credible","questions":"Is there asset management support?",
-                                                        "evidence":"The technical engineer said this."},
-                            {"maturityassessment":"Nist Company Name Assessment","function":"GV","category":"GV.CV","subcategory":"GV.CV-1","grade":2, 
-                                                                "questionrating":"Basic","questions":"Is there a backup policy?",
-                                                                "evidence":"The CTO said this"}]
+        maturity_assessment_data = store_mata_data["store_maturity_data"]
         headers = self.login()
         self.grant_access_initial()
         for maturity_assessment in maturity_assessment_data:
@@ -58,8 +54,9 @@ class MaturityAssessmentCase(unittest.TestCase):
     def test_get_maturity_assessment(self):
         headers = self.login()
         self.grant_access_initial()
-        response = requests.get(f"{uri}/getquestions",params={"maturityassessment":"Nist Company Name Assessment","maturityassessment":"Nist Company Name Assessment"},headers=headers)
+        response = requests.get(f"{uri}/getquestions",params={"maturityassessment":"Nist Company Name Assessment"},headers=headers)
         if response.json().get("error"):
+            #print(response.json())
             self.assertEqual(response.json().get("error"),"maturity assessment data does not exist.")
         else:
             print(response.json())

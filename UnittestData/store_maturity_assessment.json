@@ -1,0 +1,55 @@
+{
+    "store_maturity_data": [
+        {
+            "maturityassessment": "Nist Company Name Assessment",
+            "function": "ID",
+            "category": "ID.AM",
+            "subcategory": "ID.AM-1",
+            "grade": 3,
+            "questionrating": "Credible",
+            "questions": "Is there asset management support?",
+            "evidence": "The technical engineer said this."
+        },
+        {
+            "maturityassessment": "Nist Company Name Assessment",
+            "function": "GV",
+            "category": "GV.CV",
+            "subcategory": "GV.CV-1",
+            "grade": 2,
+            "questionrating": "Basic",
+            "questions": "Is there a backup policy?",
+            "evidence": "The CTO said this"
+        }
+        ,
+        {
+            "maturityassessment": "Nist Company Name Assessment",
+            "function": "DE",
+            "category": "DE.CM",
+            "subcategory": "DE.CM-1",
+            "grade": 1,
+            "questionrating": "Foundation",
+            "questions": "Is there malware detection?",
+            "evidence": "They use microsoft defender."
+        },
+        {
+            "maturityassessment": "Nist Company Name Assessment",
+            "function": "DE",
+            "category": "DE.CM",
+            "subcategory": "DE.CM-1",
+            "grade": 2,
+            "questionrating": "Basic",
+            "questions": "Is malware regularly scanned for?",
+            "evidence": "This is done every hour of the day."
+        },
+        {
+            "maturityassessment": "Nist Company Name Assessment 2",
+            "function": "ID",
+            "category": "ID.AM",
+            "subcategory": "ID.AM-1",
+            "grade": 3,
+            "questionrating": "Credible",
+            "questions": "Is there asset management support?",
+            "evidence": "The technical engineer said this."
+        }
+    ]
+}
