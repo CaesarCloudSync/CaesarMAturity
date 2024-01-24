@@ -35,17 +35,17 @@ class SQLOps:
         else:
             return False
     def store_question(self,email,maturityassessment,function,category,grade,subcategory,questionrating,question,evidence):
-        mat_res = self.Maturitycrud.post_data(("author_email","maturityassessment"),(email,maturityassessment),"maturityassessments")
+        maturity_assessment_exists = self.Maturitycrud.check_exists(("*"),f"maturityassessments",f"maturityassessment = '{maturityassessment}'")
+        if not maturity_assessment_exists:
+            mat_res = self.Maturitycrud.post_data(("author_email","maturityassessment"),(email,maturityassessment),"maturityassessments")
         func_res = self.Maturitycrud.post_data(("maturityassessment","function"),(maturityassessment,function),"functions")
         cat_res = self.Maturitycrud.post_data(("function","category"),(function,category),"categorys")
         subcat_res = self.Maturitycrud.post_data(("category","subcategory","grade"),(category,subcategory,grade),"subcategorys")
         qr_res = self.Maturitycrud.post_data(("subcategory","questionrating"),(subcategory,questionrating),"questionratings")
 
         q_res = self.Maturitycrud.post_data(("questionrating","question","evidenceforservice"),(questionrating,question,evidence),"questions")
-        has_access = self.check_access(email,maturityassessment)
-        if not has_access:
-            acc_res = self.Maturitycrud.post_data(("email","maturityassessment"),(email,maturityassessment),"maturityassessmentaccess")
-        if mat_res and func_res and cat_res and subcat_res and qr_res and q_res:
+        #acc_res = self.Maturitycrud.post_data(("email","maturityassessment"),(email,maturityassessment),"maturityassessmentaccess")
+        if func_res and cat_res and subcat_res and qr_res and q_res:
             return True
         else:
             return False

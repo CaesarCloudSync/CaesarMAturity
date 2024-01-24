@@ -101,8 +101,12 @@ async def storequestion(data : JSONStructure = None, authorization: str = Header
             if question_exists:
                 return {"error":"question already exist"}                
             else:
-                res = sqlops.store_question(email ,maturityassessment,function,category,grade ,subcategory,questionrating,question,evidence)
-                return {"message":"question was stored"}
+                has_access = sqlops.check_access(current_user,maturityassessment)
+                if has_access:
+                    res = sqlops.store_question(email ,maturityassessment,function,category,grade ,subcategory,questionrating,question,evidence)
+                    return {"message":"question was stored"}
+                else:
+                    return {"error":"You are unauthorized to use this document."}
                 
             
             
