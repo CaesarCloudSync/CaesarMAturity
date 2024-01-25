@@ -50,6 +50,37 @@
             "questionrating": "Credible",
             "questions": "Is there asset management support?",
             "evidence": "The technical engineer said this."
+        },
+        {
+            "maturityassessment": "Nist Company Name Assessment 3",
+            "function": "ID",
+            "category": "ID.AM",
+            "subcategory": "ID.AM-34",
+            "grade": 3,
+            "questionrating": "Credible",
+            "questions": "Is there asset management support?",
+            "evidence": "The technical engineer said this."
+        },
+        {
+            "maturityassessment": "Nist Company Name Assessment 3",
+            "function": "ID",
+            "category": "ID.AM-woops",
+            "subcategory": "ID.AM-1",
+            "grade": 3,
+            "questionrating": "Credible",
+            "questions": "Is there asset management support?",
+            "evidence": "The technical engineer said this."
+        }
+        ,
+        {
+            "maturityassessment": "Nist Company Name Assessment 3",
+            "function": "ID56",
+            "category": "ID.AM",
+            "subcategory": "ID.AM-1",
+            "grade": 3,
+            "questionrating": "Credible",
+            "questions": "Is there asset management support?",
+            "evidence": "The technical engineer said this."
         }
     ]
 }

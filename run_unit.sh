@@ -1,1 +1,1 @@
-python -m unittest maturityunit.MaturityAssessmentCase
+python -m unittest maturityunit.MaturityAssessmentCase > output.txt
