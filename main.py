@@ -118,7 +118,6 @@ async def getquestions(request: Request,authorization: str = Header(None)):
     try:
         current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
         if current_user:
-            #request.get_json() # tes,function,category,subcategory,questionrating = sqlops.validate_request(data)
             params = dict(request.query_params)
             has_access = sqlops.check_access(current_user,params["maturityassessment"])
             if has_access:
@@ -138,13 +137,35 @@ async def getquestions(request: Request,authorization: str = Header(None)):
     except Exception as ex:
         print(type(ex),ex)
         return {"error":f"{type(ex)},{ex}"}
+@app.get('/getallexisting') # POST # allow all origins all methods.
+async def getallexisting(request: Request,authorization: str = Header(None)):
+    try:
+        current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
+        if current_user:
+            params = dict(request.query_params)
+            field = params["field"]
+            has_access = sqlops.check_access(current_user,params["maturityassessment"])
+            if has_access:
+
+                field_exists = maturitycrud.check_exists(("*"),f"{field}s")
+                if field_exists:
+                    field_data = maturitycrud.get_data((field,),f"{field}s")
+                    print(field_data)
+                    return {"maturity_assessment":field_data}
+                    
+                else:
+                    return {"error":"maturity assessment data does not exist."}
+            else:
+                return {"error":"You are unauthorized to use this document."}  
+    except Exception as ex:
+        print(type(ex),ex)
+        return {"error":f"{type(ex)},{ex}"}
 
 @app.put('/updatequestion') # POST # allow all origins all methods.
 async def updatequestion(data : JSONStructure = None,authorization: str = Header(None)):
     try:
         current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
         if current_user:
-            #request.get_json() # tes,function,category,subcategory,questionrating = sqlops.validate_request(data)
             
 
             data = dict(data)
@@ -164,7 +185,6 @@ async def deletematurityinfo(request : Request,authorization: str = Header(None)
     try:
         current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
         if current_user:
-            #request.get_json() # tes,function,category,subcategory,questionrating = sqlops.validate_request(data)
             
             params = dict(request.query_params)
             has_access = sqlops.check_access(current_user,params["maturityassessment"])
