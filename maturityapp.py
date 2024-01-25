@@ -1,5 +1,5 @@
 import json
-from maturityappops import MaturityAppOps
+from MAturityAppOps.maturityappops import MaturityAppOps
 maturity_assessment_data = {"maturityassessment":"Nist Company Name Assessment","function":"GV","category":"GV.CE","subcategory":"GV.CV-1","grade":2, 
                                                                 "questionrating":"Basic","question":"Is there a backup policy?",
                                                                "evidence":"The CTO said this"}
@@ -46,7 +46,7 @@ while not finished:
             if questionrating.lower() not in [x.lower() for x in questionratings]: # Has to be one of these values ["Foundation","Basic","Marginal","Credible","Optimal"]
                 continue
             question = input(f"What NIST control framework question to input? ")
-            evidence = input(f"What NIST control framework question to input? ")
+            evidence = input(f"What NIST control framework evidence to input? ")
             maturity_assessment_picked = True
 
         maturityops.store_question({"maturityassessment":maturity_assessment,"function":function,"category":category,"subcategory":subcategory,"grade":grade, 

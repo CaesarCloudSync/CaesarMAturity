@@ -38,6 +38,7 @@ class SQLOps:
         maturity_assessment_exists = self.Maturitycrud.check_exists(("*"),f"maturityassessments",f"maturityassessment = '{maturityassessment}'")
         if not maturity_assessment_exists:
             mat_res = self.Maturitycrud.post_data(("author_email","maturityassessment"),(email,maturityassessment),"maturityassessments")
+            acc_res = self.Maturitycrud.post_data(("email","maturityassessment"),(email,maturityassessment),"maturityassessmentaccess")
         func_res = self.Maturitycrud.post_data(("maturityassessment","function"),(maturityassessment,function),"functions")
         cat_res = self.Maturitycrud.post_data(("function","category"),(function,category),"categorys")
         subcat_res = self.Maturitycrud.post_data(("category","subcategory","grade"),(category,subcategory,grade),"subcategorys")
