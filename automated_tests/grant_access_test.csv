@@ -1,0 +1,2 @@
+Test Data,Expected Results,Test Evidence,Reasoning
+"{""email"": ""maturity.friend@gmail.com"", ""maturityassessment"": ""Nist Company Name Assessment""}",Access has been granted,"""access has been granted to maturity.friend@gmail.com for this maturity assesement.""",Testing the granting access function
