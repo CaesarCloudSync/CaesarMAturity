@@ -1,5 +1,5 @@
 import json
-from MAturityAppOps.maturityappops import MaturityAppOps
+from MaturityAppOps.maturityappops import MaturityAppOps
 maturity_assessment_data = {"maturityassessment":"Nist Company Name Assessment","function":"GV","category":"GV.CE","subcategory":"GV.CV-1","grade":2, 
                                                                 "questionrating":"Basic","question":"Is there a backup policy?",
                                                                "evidence":"The CTO said this"}
