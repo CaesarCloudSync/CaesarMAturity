@@ -8,6 +8,8 @@ email = "maturity.unittest@gmail.com" #input("What is your email?")
 password = "maturity" # input("What is your password?")
 with open ("UnittestData/store_maturity_assessment.json") as f:
     store_mata_data  = json.load(f)
+with open ("UnittestData/update_maturity_assessment.json") as f:
+    update_mata_data  = json.load(f)["update_maturity_assessments"]
 class MaturityAssessmentCase(unittest.TestCase):
     def login(self):
         responselogin = requests.post(f"{uri}/signupapi",json={"email":email,"password":password})

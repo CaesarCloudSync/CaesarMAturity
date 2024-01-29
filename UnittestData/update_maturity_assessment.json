@@ -1,0 +1,48 @@
+{
+    "update_maturity_assessments": [[
+        {
+            "function": "PR",
+            "oldfunction": "GV"
+        },
+        {
+            "category": "PR.IR",
+            "oldcategory": "GV.CV"
+        },
+        {
+            "subcategory": "PR.IR-1",
+            "oldsubcategory": "GV.CV-1"
+        }
+    ],
+
+    [
+        {
+            "category": "LL.MM",
+            "oldcategory": "ID.AM"
+        },
+        {
+            "subcategory": "LL.MM-1",
+            "oldsubcategory": "ID.AM-1"
+        }
+    ],
+    [
+
+        {
+            "subcategory": "DE.CM-1",
+            "oldsubcategory": "LL.MM-2"
+        }
+    ],
+    [
+
+        {
+            "question": "Is there asset management support on an organizational level?",
+            "oldquestion": "Is there asset management support?"
+        }
+    ],
+    [
+
+        {
+            "questionrating": "Basic",
+            "oldquestionrating": "Optimal"
+        }
+    ]]
+}
