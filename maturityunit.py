@@ -65,19 +65,20 @@ class MaturityAssessmentCase(unittest.TestCase):
             self.assertNotEqual(response.json().get("maturityassessments"),None)
 
     def test_update_maturity_assessment(self):
-        headers = self.login()
-        self.grant_access_initial()
-        fields = [{"function":"PR","oldfunction":"GV"},{"category":"PR.IR","oldcategory":"GV.CV"},{"subcategory":"PR.IR-1","oldsubcategory":"GV.CV-1"}]
-        for fieldupdate in fields:
-            json_data = {"maturityassessment":"Nist Company Name Assessment"}
-            json_data.update(fieldupdate)
-            #print(json_data)
-            response = requests.put(f"{uri}/updatequestion",json=json_data,headers=headers)
-            if response.json().get("message"):
-                self.assertNotEqual(response.json().get("message"),None)
+            headers = self.login()
+            self.grant_access_initial()
+            each_change = update_mata_data
+            for fields in each_change:
+                for fieldupdate in fields:
+                    json_data = {"maturityassessment":"Nist Company Name Assessment"}
+                    json_data.update(fieldupdate)
+                    response = requests.put(f"{uri}/updatequestion",json=json_data,headers=headers)
+                    if response.json().get("message"):
+                        self.assertNotEqual(response.json().get("message"),None)
 
-            else:
-                self.assertEqual(response.json().get("error"),None)
+                    else:
+                        print("Output:",response.json().get("error"))
+                        self.assertEqual(response.json().get("error"),None)
 
     def test_grant_access(self):
         headers = self.login()
