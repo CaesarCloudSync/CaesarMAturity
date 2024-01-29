@@ -15,6 +15,17 @@ finished = False
 while not finished:
     action_picked = False
     while not action_picked:
+        print("Sample Data:",{
+            "maturityassessment": "Nist Company Name Assessment",
+            "function": "ID",
+            "category": "ID.AM",
+            "subcategory": "ID.AM-1",
+            "grade": 3,
+            "questionrating": "Credible",
+            "questions": "Is there asset management support?",
+            "evidence": "The technical engineer said this."
+        })
+        print()
         action_option = input("Pick action option:\n(1) store new maturity assessment\n(2) get maturity assessment data\n(3) update existing maturity assessment.\n(4) get all existing from field.\n(q) quit\n")
         if action_option == "q":
             exit()
