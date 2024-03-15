@@ -1,7 +1,7 @@
 import requests
 import unittest
 import json
-
+from MaturitySQLDB.maturitysql import MaturitySQL
 
 uri = "http://127.0.0.1:8080"
 email = "maturity.unittest@gmail.com" #input("What is your email?")
@@ -57,6 +57,7 @@ class MaturityAssessmentCase(unittest.TestCase):
         headers = self.login()
         self.grant_access_initial()
         response = requests.get(f"{uri}/getquestions",params={"maturityassessment":"Nist Company Name Assessment"},headers=headers)
+        print(response.json())
         if response.json().get("error"):
             #print(response.json())
             self.assertEqual(response.json().get("error"),"maturity assessment data does not exist.")
@@ -103,4 +104,6 @@ class MaturityAssessmentCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    msql = MaturitySQL()
+    #msql.run_command("DROP TABLE users, categorys,functions,subcategorys,maturityassessments,maturityassessmentaccess,questions,questionratings;")
     unittest.main()

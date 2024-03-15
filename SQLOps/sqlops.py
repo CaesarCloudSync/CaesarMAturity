@@ -1,8 +1,8 @@
 import os
 import base64
 import requests
-from MaturitySQLDB.Maturitycrud import MaturityCRUD
-from MaturitySQLDB.Maturity_create_tables import MaturityCreateTables
+from MaturitySQLDB.maturitycrud import MaturityCRUD
+from MaturitySQLDB.maturity_create_tables import MaturityCreateTables
 class SQLOps:
     def __init__(self,Maturitycrud : MaturityCRUD,Maturitycreatetables : MaturityCreateTables) -> None:
         self.Maturitycrud = Maturitycrud

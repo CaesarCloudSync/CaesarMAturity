@@ -1,9 +1,10 @@
 import base64
+from MaturitySQLDB.maturitysql import MaturitySQL
+from psycopg import ProgrammingError
 from typing import Union
-from MaturitySQLDB.Maturitysql import MaturitySQL
 class MaturityCRUD:
     def __init__(self) -> None:
-        self.Maturitysql = MaturitySQL()
+        self.maturitysql = MaturitySQL()
     def remove_last_occurrence(self,original_string, word_to_remove):
         split_string = original_string.rsplit(word_to_remove, 1)
         if len(split_string) > 1:
@@ -11,21 +12,28 @@ class MaturityCRUD:
             return new_string
         else:
             return original_string
-    
     def create_table(self,primary_key:str,fields:tuple,types :tuple,table: str):
         if type(fields) == tuple:
             fieldlist = [f"{field} {typestr}"for field,typestr in zip(fields,types)]
             fieldstr = ', '.join(fieldlist)
-            result = self.Maturitysql.run_command(f"CREATE TABLE IF NOT EXISTS {table} ({primary_key} int NOT NULL AUTO_INCREMENT,{fieldstr}, PRIMARY KEY ({primary_key}) );",self.Maturitysql.fetch)
-            if result == ():
-                return {"message":f"{table} table was created."}
-            else:
-                return {"error":f"error table was not created.","error":result}
+            try:
+                result = self.maturitysql.run_command(f"CREATE TABLE IF NOT EXISTS {table} ({primary_key} serial PRIMARY KEY,{fieldstr});",self.maturitysql.fetch)
+            except ProgrammingError as pex:
+                if "didn't produce a result" in str(pex):
+                    return {"message":f"{table} table was created."}
+                else:
+                    raise ProgrammingError(pex)
+
+
         else:
             fieldstr = f"{fields} {types}"
-            result = self.Maturitysql.run_command(f"CREATE TABLE IF NOT EXISTS {table} ({primary_key} int NOT NULL AUTO_INCREMENT,{fieldstr}, PRIMARY KEY ({primary_key}) );",self.Maturitysql.fetch)
-            if result == ():
-                return {"message":f"{table} table was created."}
+            try:
+                result = self.maturitysql.run_command(f"CREATE TABLE IF NOT EXISTS {table} ({primary_key} serial PRIMARY KEY,{fieldstr});",self.maturitysql.fetch)
+            except ProgrammingError as pex:
+                if "didn't produce a result" in str(pex):
+                    return {"message":f"{table} table was created."}
+                else:
+                    raise ProgrammingError(pex)
     def base64_to_hex(self,value):
         value = value.encode()
         value = base64.decodebytes(value).hex()
@@ -44,8 +52,8 @@ class MaturityCRUD:
 
             #values = tuple(map(convert_to_hex,values))
 
-            result = self.Maturitysql.run_command(f"INSERT INTO {table} {fieldstr} VALUES {valuestr};",self.Maturitysql.fetch,datatuple=values)
-            if result == ():
+            result = self.maturitysql.run_command(f"INSERT INTO {table} {fieldstr} VALUES {valuestr} returning {fields[0]};",self.maturitysql.fetch,datatuple=values)
+            if len(result) != 0:
                 return True
             else:
                 return False
@@ -80,19 +88,19 @@ class MaturityCRUD:
             #fieldstr = fieldstr.replace(", ","",100)
         if condition:
             #print(f"""SELECT {fieldstr} FROM {table} WHERE {condition};""")
-            result = self.Maturitysql.run_command(f"""SELECT {fieldstr} FROM {table} WHERE {condition} LIMIT {str(getamount)};""",self.Maturitysql.fetch)
-            if result == ():
+            result = self.maturitysql.run_command(f"""SELECT {fieldstr} FROM {table} WHERE {condition} LIMIT {str(getamount)};""",self.maturitysql.fetch)
+            if len(result) == 0:
                 return False
-            elif result != () and type(result) == tuple:
+            elif len(result) != 0 and type(result) == list:
                 result = self.tuple_to_json(fields,result)
                 return result
             else:
                 return {"error":"error syntax error.","error":result}
         else:
-            result = self.Maturitysql.run_command(f"""SELECT {fieldstr} FROM {table} LIMIT {str(getamount)};""",self.Maturitysql.fetch)
-            if result == ():
+            result = self.maturitysql.run_command(f"""SELECT {fieldstr} FROM {table} LIMIT {str(getamount)};""",self.maturitysql.fetch)
+            if len(result) == 0:
                 return False
-            elif result != () and type(result) == tuple:
+            elif len(result) != 0 and type(result) == list:
                 result = self.tuple_to_json(fields,result)
                 return result
             else:
@@ -110,10 +118,10 @@ class MaturityCRUD:
             #fieldstr = fieldstr.replace(", ","",100)
         if condition:
             #print(f"""SELECT {fieldstr} FROM {table} WHERE {condition};""")
-            result = self.Maturitysql.run_command_generator(f"""SELECT {fieldstr} FROM {table} WHERE {condition};""")
+            result = self.maturitysql.run_command_generator(f"""SELECT {fieldstr} FROM {table} WHERE {condition};""")
             return result
         else:
-            result = self.Maturitysql.run_command_generator(f"""SELECT {fieldstr} FROM {table};""")
+            result = self.maturitysql.run_command_generator(f"""SELECT {fieldstr} FROM {table};""")
             return result
     def get_join_question_data(self,fields:tuple,condition=Union[dict,None]):
             if len(fields) != 1:
@@ -142,7 +150,7 @@ class MaturityCRUD:
                             condstr = f"{condfields[ind]}s.{condfields[ind]} = '{fieldvalues[ind]}' AND "
                     conditionres += condstr
                 condition_result = self.remove_last_occurrence(conditionres,"AND") + ";"
-                result = self.Maturitysql.run_command(
+                result = self.maturitysql.run_command(
                         f"""
                         SELECT {fieldstr} FROM questions
                         INNER JOIN questionratings ON questions.questionrating = questionratings.questionrating
@@ -152,9 +160,9 @@ class MaturityCRUD:
                         INNER JOIN maturityassessments ON functions.maturityassessment = maturityassessments.maturityassessment
                         WHERE {condition_result};
                         
-                        """,self.Maturitysql.fetch)
+                        """,self.maturitysql.fetch)
             else:
-               result = self.Maturitysql.run_command(
+               result = self.maturitysql.run_command(
                         f"""
                         SELECT {fieldstr} FROM questions
                         JOIN questionratings ON questions.questionrating = questionratings.questionrating
@@ -163,15 +171,15 @@ class MaturityCRUD:
                         JOIN functions ON categorys.function = functions.function
                         JOIN maturityassessments ON functions.maturityassessment = maturityassessments.maturityassessment;
                         
-                        """,self.Maturitysql.fetch)
+                        """,self.maturitysql.fetch)
             if result == ():
                 return False
-            elif result != () and type(result) == tuple:
+            elif result != () and type(result) == list:
                 result = self.tuple_to_json(fields,result)
                 return result
             else:
                 return {"error":"error syntax error.","error":result}
-    
+    # https://www.mssqltips.com/sqlservertip/6672/sql-update-statement-with-join-in-sql-server-oracle-postgresql/
     def update_maturityinfo(self,data:dict):
         if not data.get("oldmaturityassessment"):
             del data["maturityassessment"]
@@ -187,21 +195,22 @@ class MaturityCRUD:
             is_removing_question = True
             pass
         if not is_removing_question:
-            sql_command = f"""
+            sql_command = f'''
                 UPDATE questions
                 INNER JOIN questionratings ON questions.questionrating = questionratings.questionrating
                 INNER JOIN subcategorys ON questionratings.subcategory = subcategorys.subcategory
                 INNER JOIN categorys ON subcategorys.category = categorys.category
                 INNER JOIN functions ON categorys.function = functions.function
                 INNER JOIN maturityassessments ON functions.maturityassessment = maturityassessments.maturityassessment
-                SET {column_name}.{fieldname}  = '{new_value}',
+                SET {column_name}.{fieldname} = '{new_value}',
                     {next_column_name}.{fieldname} = '{new_value}'
-                WHERE {column_name}.{fieldname} = '{old_value}';"""
+                WHERE {column_name}.{fieldname} = '{old_value}';'''
+            print(sql_command)
         else:
             sql_command = f"UPDATE {column_name} SET {fieldname} = '{data['question']}' WHERE {fieldname} = '{old_value}';"
         #print(sql_command)
         
-        res = self.Maturitysql.run_command(sql_command,self.Maturitysql.fetch)
+        res = self.maturitysql.run_command(sql_command,self.maturitysql.fetch)
         return res
     def delete_maturityinfo(self,params :dict):
         if len(list(params.keys())) > 1:
@@ -209,14 +218,15 @@ class MaturityCRUD:
         fieldname = list(params.keys())[0]
         column_name =  fieldname  + "s"
         value = params[fieldname]
-        res = self.Maturitysql.run_command(f"""DELETE {column_name} FROM questions
+        res = self.maturitysql.run_command(f"""DELETE {column_name} FROM questions
                 INNER JOIN questionratings ON questions.questionrating = questionratings.questionrating
                 INNER JOIN subcategorys ON questionratings.subcategory = subcategorys.subcategory
                 INNER JOIN categorys ON subcategorys.category = categorys.category
                 INNER JOIN functions ON categorys.function = functions.function
                 INNER JOIN maturityassessments ON functions.maturityassessment = maturityassessments.maturityassessment
-                WHERE {column_name}.{fieldname} = '{value}';""",self.Maturitysql.fetch)
+                WHERE {column_name}.{fieldname} = '{value}';""",self.maturitysql.fetch)
         return res
+        
     def update_data(self,fieldstoupdate:tuple,values:tuple,table=str,condition=str):
         if len(fieldstoupdate) > 1:
             updatelist = []
@@ -226,11 +236,12 @@ class MaturityCRUD:
                     updatelist.append(fieldstr)
 
                 else:
+                    value = value.replace("'","''",1000000)
                     fieldstr = f"{field} = '{value}'"
                     updatelist.append(fieldstr)
             updatestr = ', '.join(updatelist)
-            result = self.Maturitysql.run_command(f"UPDATE {table} SET {updatestr} WHERE {condition};",self.Maturitysql.fetch)
-            if result == ():
+            result = self.maturitysql.run_command(f"UPDATE {table} SET {updatestr} WHERE {condition} returning {fieldstoupdate[0]};",self.maturitysql.fetch)
+            if len(result) == 0:
                 return True
             else:
                 return False
@@ -238,23 +249,25 @@ class MaturityCRUD:
             if type(values[0]) != str:
                 updatestr = f"{fieldstoupdate[0]} = {values[0]}"
             else:
-                updatestr = f"{fieldstoupdate[0]} = '{values[0]}'"
-            result = self.Maturitysql.run_command(f"UPDATE {table} SET {updatestr} WHERE {condition};",self.Maturitysql.fetch)
-            if result == ():
+                value = values[0].replace("'","''",1000000)
+                updatestr = f"{fieldstoupdate[0]} = '{value}'"
+            result = self.maturitysql.run_command(f"UPDATE {table} SET {updatestr} WHERE {condition} returning {fieldstoupdate[0]};",self.maturitysql.fetch)
+            if len(result) == 0:
                 return True
             else:
                 return False
-
+    # TODO Cgeck This works
     def update_blob(self,fieldstoupdate:str,value:str,table=str,condition=str):
-        updatestr = "UPDATE %s SET %s = x'%s' WHERE %s;" % (table,fieldstoupdate,self.base64_to_hex(value),condition)
-        result = self.Maturitysql.run_command(updatestr,self.Maturitysql.fetch)
-        if result == ():
+        updatestr = "UPDATE %s SET %s = x'%s' WHERE %s returning %s;" % (table,fieldstoupdate,self.base64_to_hex(value),condition,fieldstoupdate[0])
+        result = self.maturitysql.run_command(updatestr,self.maturitysql.fetch)
+        if len(result) == 0:
             return True
         else:
             return False
     def delete_data(self,table:str,condition:str):
-        result = self.Maturitysql.run_command(f"DELETE FROM {table} WHERE {condition};",self.Maturitysql.fetch)
-        if result == ():
+        field_name = condition.split("=")[0].strip()
+        result = self.maturitysql.run_command(f"DELETE FROM {table} WHERE {condition} returning {field_name};",self.maturitysql.fetch)
+        if len(result) == 0:
             return True
         else:
             return False
@@ -269,14 +282,14 @@ class MaturityCRUD:
             #fieldstr = fieldstr.replace(", ","",100)
         if condition:
             #print(f"""SELECT {fieldstr} FROM {table} WHERE {condition};""")
-            result = self.Maturitysql.run_command(f"""SELECT {fieldstr} FROM {table} WHERE {condition};""",self.Maturitysql.check_exists)
+            result = self.maturitysql.run_command(f"""SELECT {fieldstr} FROM {table} WHERE {condition};""",self.maturitysql.check_exists)
             if result == True or result == False:
                 return result
             else:
                 return {"message":"syntax error or table doesn't exist.","error":result}
                 
         else:
-            result = self.Maturitysql.run_command(f"""SELECT {fieldstr} FROM {table};""",self.Maturitysql.check_exists)
+            result = self.maturitysql.run_command(f"""SELECT {fieldstr} FROM {table};""",self.maturitysql.check_exists)
             if result == True or result == False:
                 return result
             else:

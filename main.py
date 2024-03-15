@@ -8,13 +8,13 @@ import requests
 from dotenv import load_dotenv
 from fastapi import FastAPI, Header,Request
 from typing import Dict,List,Any,Union
-from MaturitySQLDB.Maturitycrud import MaturityCRUD
-from MaturitySQLDB.Maturityhash import MaturityHash
+from MaturitySQLDB.maturitycrud import MaturityCRUD
+from MaturitySQLDB.maturityhash import MaturityHash
 from fastapi.responses import StreamingResponse
 from fastapi import WebSocket,WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from MaturityJWT.maturityjwt import MaturityJWT
-from MaturitySQLDB.Maturity_create_tables import MaturityCreateTables
+from MaturitySQLDB.maturity_create_tables import MaturityCreateTables
 from SQLOps.sqlops import SQLOps
 
 load_dotenv(".env")

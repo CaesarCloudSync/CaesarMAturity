@@ -1,6 +1,6 @@
 import jwt
 import hashlib
-from MaturitySQLDB.Maturitycrud import MaturityCRUD
+from MaturitySQLDB.maturitycrud import MaturityCRUD
 class MaturityJWT:
     def __init__(self,Maturitycrud : MaturityCRUD) -> None:
         self.Maturitycrud = Maturitycrud

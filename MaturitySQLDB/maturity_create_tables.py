@@ -1,3 +1,4 @@
+from MaturitySQLDB.maturitycrud import MaturityCRUD
 class MaturityCreateTables:
     def __init__(self) -> None:
         self.usersfields = ("email","password")
@@ -11,7 +12,7 @@ class MaturityCreateTables:
 
         
 
-    def create(self,Maturitycrud):
+    def create(self,Maturitycrud : MaturityCRUD):
         Maturitycrud.create_table("userid",self.usersfields,
         ("varchar(255) NOT NULL","varchar(255) NOT NULL"),
         "users")
@@ -42,5 +43,3 @@ class MaturityCreateTables:
         ("varchar(255) NOT NULL","varchar(255) NOT NULL"),
         "maturityassessmentaccess")
         
-
-
