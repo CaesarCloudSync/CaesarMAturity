@@ -25,7 +25,7 @@ class MaturityOptions:
                 "evidence": "The technical engineer said this."
             })
             print()
-            action_option = input("Pick action option:\n(1) store new maturity assessment\n(2) get maturity assessment data\n(3) update existing maturity assessment.\n(4) get all existing from field.\n(5) Delete question.\n(6) try sample.\n(q) quit\n")
+            action_option = input("Pick action option:\n(1) store new maturity assessment\n(2) get maturity assessment data\n(3) update existing maturity assessment.\n(4) get all existing from field.\n(5) delete question.\n(6) try sample.\n(q) quit\n")
             if action_option == "q":
                 exit()
             if action_option == "1" or action_option == "2" or action_option == "3" or action_option == "4" or action_option == "5" or action_option == "6":
