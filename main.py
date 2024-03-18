@@ -186,8 +186,8 @@ async def updatequestion(data : JSONStructure = None,authorization: str = Header
     except Exception as ex:
         print(type(ex),ex)
         return {"error":f"{type(ex)},{ex}"}
-@app.delete('/deletematurityinfo') # POST # allow all origins all methods.
-async def deletematurityinfo(request : Request,authorization: str = Header(None)):
+@app.delete('/deletequestion') # POST # allow all origins all methods.
+async def deletquestion(request : Request,authorization: str = Header(None)):
     try:
         current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
         if current_user:
@@ -195,9 +195,9 @@ async def deletematurityinfo(request : Request,authorization: str = Header(None)
             params = dict(request.query_params)
             has_access = sqlops.check_access(current_user,params["maturityassessment"])
             if has_access:
-                res = maturitycrud.delete_maturityinfo(params)
+                maturitycrud.delete_data("questions",f"question = '{params['question']}'")
 
-                return {"message":"maturity data deleted."}
+                return {"message":"maturity question wasa deleted."}
             else:
                 return {"error":"You are unauthorized to use this document."}  
     except Exception as ex:

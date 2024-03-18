@@ -21,6 +21,14 @@ class MaturityAppOps:
             print(response.json().get("error") + "or maturity assessment doesn't exist.")
         else:
             print(response.json())
+    def delete_question(self,maturityassessment,question):
+        param_data = {"maturityassessment":maturityassessment,"question":question}
+        response = requests.delete(f"{self.uri}/deletequestion",params=param_data,headers=self.headers)
+        if response.json().get("error"):
+            print(response.json().get("error") + "or maturity assessment doesn't exist.")
+        else:
+            print(response.json())
+
     def getallexisting(self,maturityassessment,field):
         # get all existing data on the specified field
         param_data = {"maturityassessment":maturityassessment}

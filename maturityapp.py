@@ -30,7 +30,12 @@ while not finished:
         return_to_main_menu = maturityoption.get_all()
         if not return_to_main_menu:
             finished = True
+
     if action_option == "5":
+        return_to_main_menu = maturityoption.delete_question()
+        if not return_to_main_menu:
+            finished = True
+    if action_option == "6":
         return_to_main_menu = maturityoption.try_sample()
         if not return_to_main_menu:
             finished = True

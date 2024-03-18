@@ -25,13 +25,14 @@ class MaturityOptions:
                 "evidence": "The technical engineer said this."
             })
             print()
-            action_option = input("Pick action option:\n(1) store new maturity assessment\n(2) get maturity assessment data\n(3) update existing maturity assessment.\n(4) get all existing from field.\n(5) try sample.\n(q) quit\n")
+            action_option = input("Pick action option:\n(1) store new maturity assessment\n(2) get maturity assessment data\n(3) update existing maturity assessment.\n(4) get all existing from field.\n(5) Delete question.\n(6) try sample.\n(q) quit\n")
             if action_option == "q":
                 exit()
-            if action_option == "1" or action_option == "2" or action_option == "3" or action_option == "4" or action_option == "5":
+            if action_option == "1" or action_option == "2" or action_option == "3" or action_option == "4" or action_option == "5" or action_option == "6":
                 action_picked = True
         return action_option
     def store_data(self):
+        maturity_assessment_picked = False
         return_to_main_menu = False
         print("POST - Storing Maturity Assessments")
         while not maturity_assessment_picked:
@@ -113,12 +114,26 @@ class MaturityOptions:
             return True
         self.maturityops.update_question(maturity_assessment,field,oldvalue,newvalue)
         return return_to_main_menu
+    def delete_question(self):
+        return_to_main_menu = False
+        print("DELETE - Querying Maturity Assessment Question.")
+        maturity_assessment = input("What is the maturity assesments name?e.g Nist Company Name Assessment or return to menu (q)")
+        if maturity_assessment == "q":
+            return True
+        maturity_assessment_question = input("What is the question you would like to delete?e.g Nist Company Name Assessment or return to menu (q)")
+        if maturity_assessment_question == "q":
+            return True
+        self.maturityops.delete_question(maturity_assessment,maturity_assessment_question)
+        return return_to_main_menu
+
     def get_all(self):
         return_to_main_menu = False
         maturity_assessment = input("What is the maturity assesments name?e.g Nist Company Name Assessment or return to menu (q)")
         if maturity_assessment == "q":
             return True
-        field = input(f"What is the maturity assesment field you want to query? or return to menu (q) \ne.g {list(self.maturity_assessment_data.keys())}\n")
+        maturity_assessment_data= list(self.maturity_assessment_data.keys())
+        maturity_assessment_data[-2] = maturity_assessment_data[-2][:-1]
+        field = input(f"What is the maturity assesment field you want to query? or return to menu (q) \ne.g {maturity_assessment_data}\n")
         if field == "q":
             return True
         self.maturityops.getallexisting(maturity_assessment,field)

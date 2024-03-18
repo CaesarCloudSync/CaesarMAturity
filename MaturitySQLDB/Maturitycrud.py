@@ -217,6 +217,7 @@ class MaturityCRUD:
                 INNER JOIN maturityassessments ON functions.maturityassessment = maturityassessments.maturityassessment
                 WHERE {column_name}.{fieldname} = '{value}';""",self.Maturitysql.fetch)
         return res
+    
     def update_data(self,fieldstoupdate:tuple,values:tuple,table=str,condition=str):
         if len(fieldstoupdate) > 1:
             updatelist = []
