@@ -117,6 +117,9 @@ class MaturityOptions:
     def delete_question(self):
         return_to_main_menu = False
         print("DELETE - Querying Maturity Assessment Question.")
+        delete_check = input("Are you sure you want to delete? (y),(n)")
+        if delete_check == "n":
+            return True
         maturity_assessment = input("What is the maturity assesments name?e.g Nist Company Name Assessment or return to menu (q)")
         if maturity_assessment == "q":
             return True
