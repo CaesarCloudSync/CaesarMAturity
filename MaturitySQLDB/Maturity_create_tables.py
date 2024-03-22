@@ -10,7 +10,7 @@ class MaturityCreateTables:
         self.maturityassessmentaccessfields = ("email","maturityassessment")
 
         
-
+    # Creates the SQL Tables.
     def create(self,Maturitycrud):
         Maturitycrud.create_table("userid",self.usersfields,
         ("varchar(255) NOT NULL","varchar(255) NOT NULL"),

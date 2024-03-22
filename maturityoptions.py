@@ -12,6 +12,7 @@ class MaturityOptions:
                                                                 "questionrating":"Basic","questions":"Is there a backup policy?",
                                                                "evidence":"The CTO said this"}
     def pick_action(self):
+        # Takes user input on what action to pick.
         action_picked = False
         while not action_picked:
             print("Sample Data:",{
@@ -32,6 +33,7 @@ class MaturityOptions:
                 action_picked = True
         return action_option
     def store_data(self):
+        # POST gets information from user to store data.
         maturity_assessment_picked = False
         return_to_main_menu = False
         print("POST - Storing Maturity Assessments")
@@ -61,7 +63,7 @@ class MaturityOptions:
                 continue
             else:
                 grade = int(grade)
-                if grade < 0 or grade> 5:
+                if grade < 0 or grade> 5: # Makes sure grade is 0-5 range
                     continue
             questionrating = input(f"What NIST control framework question rating to input? {str(self.questionratings)} or return to menu (q)")
             if questionrating == "q":
@@ -81,6 +83,7 @@ class MaturityOptions:
                                                                 "evidence":evidence})
         return return_to_main_menu
     def get_data(self):
+        # GET, fetches data from user input for what data to return from API
         return_to_main_menu = False
         print("GET- Querying Maturity Assessments")
         maturity_assessment = input("What is the maturity assesments name?e.g Nist Company Name Assessment or return to menu (q)")
@@ -97,6 +100,7 @@ class MaturityOptions:
         return return_to_main_menu
     
     def update_data(self):
+        # UPDATE gets information to update from user in cmd.
         return_to_main_menu = False
         print("UPDATE - Querying Maturity Assessments")
 
@@ -115,6 +119,7 @@ class MaturityOptions:
         self.maturityops.update_question(maturity_assessment,field,oldvalue,newvalue)
         return return_to_main_menu
     def delete_question(self):
+        # DELETE gets information to delete from user in cmd.
         return_to_main_menu = False
         print("DELETE - Querying Maturity Assessment Question.")
         delete_check = input("Are you sure you want to delete? (y),(n)")
@@ -130,6 +135,7 @@ class MaturityOptions:
         return return_to_main_menu
 
     def get_all(self):
+        # GET gets all data.
         return_to_main_menu = False
         maturity_assessment = input("What is the maturity assesments name?e.g Nist Company Name Assessment or return to menu (q)")
         if maturity_assessment == "q":
@@ -142,6 +148,7 @@ class MaturityOptions:
         self.maturityops.getallexisting(maturity_assessment,field)
         return return_to_main_menu
     def try_sample(self):
+        # Runs sample scenario.
         print("POST - Storing Maturity Assessments")
         maturityassessment = "Nist Company Name Assessment"
         self.maturityops.store_question(self.maturity_assessment_data)

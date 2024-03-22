@@ -47,7 +47,7 @@ async def signup(data: JSONStructure = None):
     try:
         signupdata = {}
         data = dict(data)
-        hashed = hashlib.sha256(data["password"].encode('utf-8')).hexdigest()
+        hashed = hashlib.sha256(data["password"].encode('utf-8')).hexdigest() # turns password into hash
         signupdata["email"] = data["email"]
         signupdata["password"] = hashed
         table = "users"
@@ -57,9 +57,9 @@ async def signup(data: JSONStructure = None):
             return {"message": "Email already exists"} # , 400
         elif not email_exists:
 
-            res = maturitycrud.post_data(("email","password"),(signupdata["email"],signupdata["password"]),table=table)
+            res = maturitycrud.post_data(("email","password"),(signupdata["email"],signupdata["password"]),table=table) # stores email and password in database
             if res:
-                access_token = maturityjwt.secure_encode({"email":signupdata["email"]})#create_access_token(identity=signupdata["email"])
+                access_token = maturityjwt.secure_encode({"email":signupdata["email"]}) # creates a JWT access token.
                 callback = {"status": "success","access_token":access_token}
             else:
                 return {"error":"error when posting signup data."}
@@ -92,20 +92,20 @@ async def login(login_details: JSONStructure = None): # ,authorization: str = He
 @app.post('/storequestion') # POST # allow all origins all methods.
 async def storequestion(data : JSONStructure = None, authorization: str = Header(None)):
     try:
-        current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
+        current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"] # decodes JWT token and gets the user email for authentication.
         if current_user:
             data = dict(data)#request.get_json() # te
-            maturityassessment,function,category,subcategory,questionrating,question,evidence,grade = sqlops.validate_store_request(data)
+            maturityassessment,function,category,subcategory,questionrating,question,evidence,grade = sqlops.validate_store_request(data) # Validates data's shape.
             email = current_user
-            question_exists = sqlops.check_question_exists(maturityassessment,function,category,subcategory,questionrating,question)
+            question_exists = sqlops.check_question_exists(maturityassessment,function,category,subcategory,questionrating,question) # checks if the question exists with JOIN SQL commands
             if question_exists:
                 return {"error":"question already exist"}                
             else:
-                maturityassessment_exists = maturitycrud.check_exists(("*"),"maturityassessments",f"maturityassessment = '{maturityassessment}'")
+                maturityassessment_exists = maturitycrud.check_exists(("*"),"maturityassessments",f"maturityassessment = '{maturityassessment}'") # checks if maturity assessment exists.
                 if maturityassessment_exists:
-                    has_access = sqlops.check_access(current_user,maturityassessment)
+                    has_access = sqlops.check_access(current_user,maturityassessment) # checks if user has access to document.
                     if has_access:
-                        res = sqlops.store_question(email ,maturityassessment,function,category,grade ,subcategory,questionrating,question,evidence)
+                        res = sqlops.store_question(email ,maturityassessment,function,category,grade ,subcategory,questionrating,question,evidence) # stores data.
                         return {"message":"question was stored"}
                     else:
                         return {"error":"You are unauthorized to use this document."}
@@ -130,9 +130,9 @@ async def getquestions(request: Request,authorization: str = Header(None)):
 
                 res = maturitycrud.get_join_question_data(("maturityassessments.maturityassessment","functions.function","categorys.category","subcategorys.subcategory",
                                                      "questionratings.questionrating","questions.question","questions.evidenceforservice","maturityassessments.author_email",
-                                                     "subcategorys.grade"),params)
+                                                     "subcategorys.grade"),params) # Gets data from sql database.
                 if res:
-                    res_list = list({frozenset(item.items()) : item for item in res}.values())
+                    res_list = list({frozenset(item.items()) : item for item in res}.values()) # formats to returnable JSON.
                     return {"maturityassessments":res_list}
                 else:
                     return {"error":"maturity assessment data does not exist."}
@@ -145,6 +145,7 @@ async def getquestions(request: Request,authorization: str = Header(None)):
         return {"error":f"{type(ex)},{ex}"}
 @app.get('/getallexisting') # POST # allow all origins all methods.
 async def getallexisting(request: Request,authorization: str = Header(None)):
+    # Gets all data.
     try:
         current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
         if current_user:
@@ -155,7 +156,7 @@ async def getallexisting(request: Request,authorization: str = Header(None)):
 
                 field_exists = maturitycrud.check_exists(("*"),f"{field}s")
                 if field_exists:
-                    field_data = maturitycrud.get_data((field,),f"{field}s")
+                    field_data = maturitycrud.get_data((field,),f"{field}s") # Gets data
                     print(field_data)
                     return {"maturity_assessment":field_data}
                     
@@ -169,6 +170,7 @@ async def getallexisting(request: Request,authorization: str = Header(None)):
 
 @app.put('/updatequestion') # POST # allow all origins all methods.
 async def updatequestion(data : JSONStructure = None,authorization: str = Header(None)):
+    # Updates data
     try:
         current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
         if current_user:
@@ -179,7 +181,7 @@ async def updatequestion(data : JSONStructure = None,authorization: str = Header
             if has_access:
                 #data_json = {"oldsubcategory":"PR.IR-2","subcategory":"GV.CV-1"}
 
-                maturitycrud.update_maturityinfo(data)
+                maturitycrud.update_maturityinfo(data) # Updates data
                 return {"message":"maturity data updated."}
             else:
                 return {"error":"You are unauthorized to use this document."}  
@@ -188,6 +190,7 @@ async def updatequestion(data : JSONStructure = None,authorization: str = Header
         return {"error":f"{type(ex)},{ex}"}
 @app.delete('/deletequestion') # POST # allow all origins all methods.
 async def deletquestion(request : Request,authorization: str = Header(None)):
+    # Deletes data
     try:
         current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
         if current_user:
@@ -205,6 +208,7 @@ async def deletquestion(request : Request,authorization: str = Header(None)):
         return {"error":f"{type(ex)},{ex}"}
 @app.post('/grantaccessinitial') # POST # allow all origins all methods.
 async def grantaccessforinitial(data : JSONStructure = None):
+    # Grants acccess to user for testing purposes.
     try:
 
         data = dict(data)
@@ -229,6 +233,7 @@ async def grantaccessforinitial(data : JSONStructure = None):
         return {"error":f"{type(ex)},{ex}"}
 @app.post('/grantaccess') # POST # allow all origins all methods.
 async def grantaccess(data : JSONStructure = None, authorization: str = Header(None)):
+    # Grants user access to document.
     try:
         current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
         if current_user:
@@ -258,6 +263,7 @@ async def grantaccess(data : JSONStructure = None, authorization: str = Header(N
         return {"error":f"{type(ex)},{ex}"}
 @app.delete('/removeaccess') # POST # allow all origins all methods.
 async def removeaccess(request : Request, authorization: str = Header(None)):
+    # Revokes user access to document.
     try:
         current_user = maturityjwt.secure_decode(authorization.replace("Bearer ",""))["email"]
         if current_user:

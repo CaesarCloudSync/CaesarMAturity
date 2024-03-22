@@ -5,7 +5,8 @@ class MaturityAppOps:
         password = "maturity" # input("What is your password?")
         self.uri = uri
         self.headers = self.login(email,password)
-        
+    
+    # These functions turn the cmd user input into api calls and prints the result.
     def store_question(self,maturity_assessment):
         response = requests.post(f"{self.uri}/storequestion",json=maturity_assessment ,headers=self.headers)
         if response.json().get("message"):
